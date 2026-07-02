@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: flask-api
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: flask-api
+
+  template:
+    metadata:
+      labels:
+        app: flask-api
+
+    spec:
+      containers:
+      - name: flask-api
+        image: flask-api:v3
+        imagePullPolicy: Never
+
+        ports:
+        - containerPort: 8000
+
+        envFrom:
+        - configMapRef:
+            name: bank-config
+        - secretRef:
+            name: bank-secret
+        
+        readinessProbe:
+          httpGet:
+           path: /accounts
+           port: 8000
+
+          initialDelaySeconds: 5
+          periodSeconds: 5
